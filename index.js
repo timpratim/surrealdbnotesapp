@@ -18,6 +18,7 @@ app.get('/notes', async (req, res) => {
     await db.use('test', 'test');
 
     let notes = await db.select("note");
+    console.log(notes);
 
     res.json(notes);
 });
@@ -34,6 +35,7 @@ app.post('/notes', async (req, res) => {
     await db.use('test', 'test');
 
     let created = await db.create("note", note);
+    
 
     res.json(created);
 });
@@ -46,6 +48,7 @@ app.listen(3001, () => {
 app.delete('/api/notes/:id', async (req, res) => {
     try {
         const id = req.params.id;
+        console.log(id);
 
         // Authenticate as an admin user or the user who owns the note
         await db.signin({
@@ -74,3 +77,37 @@ app.delete('/api/notes/:id', async (req, res) => {
         res.status(500).send({error: error.message});
     }
 });
+
+
+// Update a note
+//CURL: curl -X PUT -H "Content-Type: application/json" -d '{"title":"New Title","content":"New Content"}'
+// http://localhost:3001/api/notes/note:9dww0371ax2ojwofjh27
+app.put('/api/notes/:id', async (req, res) => {
+    try {
+      const id = req.params.id;
+      const updatedNote = req.body;
+  
+      await db.signin({
+        user: 'root',
+        pass: 'root',
+      });
+  
+      await db.use('test', 'test');
+  
+      let note = await db.update(id, updatedNote);
+  
+      if (note) {
+        console.log(`Note with id: ${id} updated successfully`);
+        res.status(200).send(note);
+      } else {
+        console.log(`Failed to update note with id: ${id}`);
+        res.status(400).send({ message: "Failed to update note" });
+      }
+    } catch (error) {
+      console.error('Failed to update note:', error);
+      res.status(500).send({ error: error.message });
+    }
+  });
+  
+
+  
