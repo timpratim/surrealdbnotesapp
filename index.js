@@ -42,8 +42,7 @@ app.listen(3001, () => {
     console.log('Listening on port 3001');
 });
 
-//CURL: curl -X DELETE http://localhost:3001/api/notes/p6rht9dfrkrfi78n11k3
-// This is the output of curl command: {"message":"Note deleted successfully"}
+//CURL: curl -X DELETE http://localhost:3001/notes/note:p6rht9dfrkrfi78n11k3
 app.delete('/api/notes/:id', async (req, res) => {
     try {
         const id = req.params.id;
@@ -56,15 +55,18 @@ app.delete('/api/notes/:id', async (req, res) => {
 
         await db.use('test', 'test'); 
 
-        await db.delete(`note:${id}`);
+        // No need to add 'note:' prefix as 'id' already contains it
+        await db.delete(id);
 
         // Select the note with the given id
-        const note = await db.select(`note:${id}`);
+        const note = await db.select(id);
 
         // If the note is not found, it was successfully deleted
         if (!note) {
+            console.log(`Note with id: ${id} deleted successfully`);
             res.status(200).send({message: "Note deleted successfully"});
         } else {
+            console.log(`Failed to delete note with id: ${id}`);
             res.status(400).send({message: "Failed to delete note"});
         }
     } catch (error) {
@@ -72,6 +74,3 @@ app.delete('/api/notes/:id', async (req, res) => {
         res.status(500).send({error: error.message});
     }
 });
-
-
-
