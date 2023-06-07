@@ -36,8 +36,10 @@ app.post('/notes', async (req, res) => {
 
     let created = await db.create("note", note);
     
-
-    res.json(created);
+    // Return only the new note object. Assume the newly created note is at the end of the 'created' array
+    let newNote = created[created.length - 1];
+    
+    res.json(newNote);
 });
 
 app.listen(3001, () => {
